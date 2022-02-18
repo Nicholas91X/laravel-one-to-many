@@ -8,7 +8,7 @@
                 <p class="card-text">Modifica Post: {{$post->title}}</p>
             </div>
             <div class="card-body">
-                <form action="{{route("posts.update", $post->id)}}" method="POST">
+                <form action="{{route("posts.update", $post->id)}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method("PUT")
                     <div class="mb-3">
@@ -25,9 +25,31 @@
                             <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label for="image" class="form-label">Immagine</label>
                         <input class="form-control @error('image') is-invalid @enderror" id="image" name="image" rows="6" placeholder="Inserisci il percorso dell'immagine" value="{{old('image') ? old('image') : $post->image}}">
+                        @error('image')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+                    </div> --}}
+                    <div class="input-group mb-3">
+                        @if ($post->image)
+                            <img id="uploadPreview" width="100" src="{{asset("storage/{$post->image}")}}" class="card-img-top" alt="{{$post->title}}">
+                        @endif
+                        <label class="input-group-text" for="image">Modifica l'immagine</label>
+                        <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" onchange="PreviewImage()">
+
+                        <script type="text/javascript">
+
+                            function PreviewImage() {
+                                var oFReader = new fileReader();
+                                oFReader.readAsDataUrl(document.getElementById("image").files[0]);
+
+                                oFReader.onload = function (oFREvent) {
+                                    document.getElementById("uploadPreview").src = oFREvent.target.result;
+                                };
+                            };
+                        </script>
                         @error('image')
                             <div class="alert alert-danger">{{ $message }}</div>
                         @enderror

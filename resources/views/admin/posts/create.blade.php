@@ -8,7 +8,7 @@
                 <p class="card-text">Crea un nuovo Post</p>
             </div>
             <div class="card-body">
-                <form action="{{route("posts.store")}}" method="POST">
+                <form action="{{route("posts.store")}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
                         <label for="title" class="form-label">Titolo</label>
@@ -24,9 +24,16 @@
                             <div class="alert alert-danger">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label for="image" class="form-label">Immagine</label>
                         <input class="form-control @error('image') is-invalid @enderror" id="image" name="image" rows="6" placeholder="Inserisci il percorso dell'immagine" value="{{old('image')}}">
+                        @error('image')
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        @enderror
+                    </div> --}}
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="image">Carica un'immagine</label>
+                        <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image">
                         @error('image')
                             <div class="alert alert-danger">{{ $message }}</div>
                         @enderror

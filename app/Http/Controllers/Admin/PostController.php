@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Post;
 use App\Cathegory;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -42,12 +43,13 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+
         //Parte di validazione dati
         $request->validate([
             "title" => "required|string|max:150",
             "description" => "required",
             "published" => "sometimes|accepted",
-            "image" => "required|string|url",
+            "image" => "nullable|mimes:jpes,bmp,png|max:2048",
             "cathegory_id" => "nullable|exists:cathegories,id"
         ]);
 
@@ -58,7 +60,11 @@ class PostController extends Controller
         $newPost = new Post();
         $newPost->title = $data['title'];
         $newPost->description = $data['description'];
-        $newPost->image = $data['image'];
+        if ( isset($data['image']) ) {
+            $path_image = Storage::put("uploads", $data["image"]);
+            $newPost->image = $path_image;
+        };
+
         $newPost->cathegory_id = $data["cathegory_id"];
 
         $slug = Str::of($newPost->title)->slug("-");
@@ -116,7 +122,7 @@ class PostController extends Controller
             "title" => "required|string|max:150",
             "description" => "required",
             "published" => "sometimes|accepted",
-            "image" => "required|string|url",
+            "image" => "nullable|mimes:jpg,bmp,png",
             "cathegory_id" => "nullable|exists:cathegories,id"
         ]);
 
@@ -142,7 +148,11 @@ class PostController extends Controller
         } 
 
         $post->description = $data['description'];
-        $post->image = $data['image'];
+        if ( isset($data['image']) ) {
+            Storage::delete($post->image);
+            $path_image = Storage::put("uploads", $data["image"]);
+            $post->image = $path_image;
+        };
         $post->cathegory_id = $data["cathegory_id"];
         $post->published = isset($data['published']);
 
@@ -160,6 +170,10 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+
+        if ($post->image) {
+            Storage::delete($post->image);
+        }
         $post->delete();
 
         return redirect()->route("posts.index");
